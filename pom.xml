@@ -15,8 +15,6 @@
             <version>332</version>
             <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.oracle.jdbc/ojdbc8 -->
-        <!-- https://mvnrepository.com/artifact/com.oracle.jdbc/ojdbc8 -->
         <dependency>
             <groupId>com.oracle.ojdbc</groupId>
             <artifactId>ojdbc8</artifactId>
