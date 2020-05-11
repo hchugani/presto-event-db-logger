@@ -1,5 +1,4 @@
 # presto-event-db-logger
-
 This plugin can be used for audit logging presto queries in Database.
 
 # Usage
@@ -7,7 +6,7 @@ This plugin can be used for audit logging presto queries in Database.
 2) Create etc/event-listener.properties file with the entries as below
 
 event-listener.name=oracle-event-logger
-connection-url=thin
+connection-url=jdbc:oracle:thin:@localhost:1521:xe
 connection-user=ORACLE_USER
 connection-password=PASSWORD
 logging-table=<SCHEMA_NAME>.<LOGGING_TABLE>
