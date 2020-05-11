@@ -2,11 +2,15 @@ package com.presto_myproject.listener;
 
 import io.prestosql.spi.eventlistener.EventListener;
 import io.prestosql.spi.eventlistener.QueryCompletedEvent;
-import java.util.List;
 import java.util.Map;
 import java.sql.*;
+
+import io.prestosql.spi.eventlistener.QueryCreatedEvent;
+import io.prestosql.spi.eventlistener.SplitCompletedEvent;
 import oracle.jdbc.pool.*;
 import java.util.logging.Logger;
+import java.time.Duration;
+import java.time.Instant;
 
 public class EventDBLoggerListener implements EventListener {
 
@@ -21,6 +25,7 @@ public class EventDBLoggerListener implements EventListener {
         createOracleConnection();
     }
 
+    @Override
     public void queryCompleted(QueryCompletedEvent queryCompletedEvent) {
         try{
             log.info("Query Completed: " + queryCompletedEvent.getMetadata().getQuery());
@@ -36,14 +41,102 @@ public class EventDBLoggerListener implements EventListener {
             String user = queryCompletedEvent.getContext().getUser();
             String userPrincipal = queryCompletedEvent.getContext().getPrincipal().get();
             String sessionProperties = queryCompletedEvent.getContext().getSessionProperties().toString();
-            queryCompletedEvent.getContext().getEnvironment();
-            queryCompletedEvent.getContext().getSource().get();
-            queryCompletedEvent.getContext().getServerAddress();
-            queryCompletedEvent.getContext().getServerVersion();
+            String env = queryCompletedEvent.getContext().getEnvironment();
+            String source = queryCompletedEvent.getContext().getSource().get();
+            String serverAddress = queryCompletedEvent.getContext().getServerAddress();
+            String serverVersion = queryCompletedEvent.getContext().getServerVersion();
+            Long totalRows = queryCompletedEvent.getStatistics().getTotalRows();
+            Long totalBytes = queryCompletedEvent.getStatistics().getTotalBytes();
+            Long outputRows = queryCompletedEvent.getStatistics().getOutputRows();
+            Long outputBytes = queryCompletedEvent.getStatistics().getOutputBytes();
+            Duration cpuTimeMs = queryCompletedEvent.getStatistics().getCpuTime();
+            Duration execTime = queryCompletedEvent.getStatistics().getExecutionTime().get();
+            Instant createTime = queryCompletedEvent.getCreateTime();
+            Instant endTime = queryCompletedEvent.getEndTime();
+
+            String insertQuery = String.format("INSERT INTO " + config.get("logging-table") + " ("+
+                    "query_id," +
+                    "query," +
+                    "query_state," +
+                    "catalog," +
+                    "schema," +
+                    "user," +
+                    "user_principal," +
+                    "session_properties," +
+                    "environment," +
+                    "source," +
+                    "server_address," +
+                    "server_version," +
+                    "total_rows," +
+                    "total_bytes," +
+                    "output_rows," +
+                    "output_bytes," +
+                    "cpu_time_ms," +
+                    "exec_time," +
+                    "create_time," +
+                    "end_time" +
+                    ") VALUES (" +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'," +
+                    "'%s'" +
+                    ")",
+                    queryId,
+                    query,
+                    queryState,
+                    catalog,
+                    schema,
+                    user,
+                    userPrincipal,
+                    sessionProperties,
+                    env,
+                    source,
+                    serverAddress,
+                    serverVersion,
+                    totalRows,
+                    totalBytes,
+                    outputRows,
+                    outputBytes,
+                    cpuTimeMs,
+                    execTime,
+                    createTime,
+                    endTime);
+            log.info(insertQuery);
+            statement.executeUpdate(insertQuery);
+            conn.close();
+
         }
         catch (Exception ex){
             log.info(ex.getMessage());
         }
+    }
+
+    @Override
+    public void queryCreated(QueryCreatedEvent queryCreatedEvent) {
+        // logic for query creation can be added in this method
+        return;
+    }
+
+    @Override
+    public void splitCompleted(SplitCompletedEvent splitCompletedEvent) {
+        // logic for split completion can be added in this method
+        return;
     }
 
     private void createOracleConnection(){
