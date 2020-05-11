@@ -124,6 +124,7 @@ public class EventDBLoggerListener implements EventListener {
         }
         catch (Exception ex){
             log.info(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -148,6 +149,7 @@ public class EventDBLoggerListener implements EventListener {
         }
         catch (SQLException ex){
             log.info(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 }
