@@ -36,13 +36,17 @@ public class EventDBLoggerListener implements EventListener {
             String queryId = queryCompletedEvent.getMetadata().getQueryId();
             String query = queryCompletedEvent.getMetadata().getQuery();
             String queryState = queryCompletedEvent.getMetadata().getQueryState();
-            String catalog = queryCompletedEvent.getContext().getCatalog().get();
-            String schema = queryCompletedEvent.getContext().getSchema().get();
+            String catalog = queryCompletedEvent.getContext().getCatalog().isPresent() ?
+                    queryCompletedEvent.getContext().getCatalog().get(): "";
+            String schema = queryCompletedEvent.getContext().getSchema().isPresent() ?
+                    queryCompletedEvent.getContext().getSchema().get() : "";
             String user = queryCompletedEvent.getContext().getUser();
-            String userPrincipal = queryCompletedEvent.getContext().getPrincipal().get();
+            String userPrincipal = queryCompletedEvent.getContext().getPrincipal().isPresent() ?
+                    queryCompletedEvent.getContext().getPrincipal().get() : "";
             String sessionProperties = queryCompletedEvent.getContext().getSessionProperties().toString();
             String env = queryCompletedEvent.getContext().getEnvironment();
-            String source = queryCompletedEvent.getContext().getSource().get();
+            String source = queryCompletedEvent.getContext().getSource().isPresent() ?
+                    queryCompletedEvent.getContext().getSource().get() : "";
             String serverAddress = queryCompletedEvent.getContext().getServerAddress();
             String serverVersion = queryCompletedEvent.getContext().getServerVersion();
             Long totalRows = queryCompletedEvent.getStatistics().getTotalRows();
@@ -50,7 +54,8 @@ public class EventDBLoggerListener implements EventListener {
             Long outputRows = queryCompletedEvent.getStatistics().getOutputRows();
             Long outputBytes = queryCompletedEvent.getStatistics().getOutputBytes();
             Duration cpuTimeMs = queryCompletedEvent.getStatistics().getCpuTime();
-            Duration execTime = queryCompletedEvent.getStatistics().getExecutionTime().get();
+            Duration execTime = queryCompletedEvent.getStatistics().getExecutionTime().isPresent() ?
+                    queryCompletedEvent.getStatistics().getExecutionTime().get() : null;
             Instant createTime = queryCompletedEvent.getCreateTime();
             Instant endTime = queryCompletedEvent.getEndTime();
 
